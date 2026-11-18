@@ -68,6 +68,16 @@ User-facing docs: [.github/README.md](.github/README.md) (shown on GitHub) and
 
 ### Updating to a new upstream stable release
 
+**Check periodically** (e.g. every month, or whenever a session starts) whether upstream published
+a newer stable release than the one `offline` is based on (see the top `CHANGELOG.md` entry):
+
+```bash
+gh release list -R jellyfin/jellyfin-androidtv -L 5 --exclude-pre-releases
+```
+
+If there is one, tell the owner and, once they agree, bring it in as below and publish
+`v<new>-offline.1`.
+
 Merge the upstream tag into `offline` (not a rebase: rebasing rewrites published history and
 would need force pushes; a merge gives the same result — upstream fixes + our offline code):
 
@@ -104,6 +114,21 @@ git merge --no-ff v0.21.0 -m "Merge upstream v0.21.0"
   with Quick Connect: read the code on screen and authorize it via `POST /QuickConnect/Authorize`.
 - Open any item directly: `adb shell am start -n org.jellyfin.androidtv.offline.debug/org.jellyfin.androidtv.ui.startup.StartupActivity --es ItemId <id>`.
 - Long press on the remote: `adb shell input keyevent --longpress DPAD_CENTER`.
+
+### Disk space of the local tooling (cleanup pending, owner's call)
+
+Measured 2026-11-18. The owner may ask to free space later; don't delete anything without asking.
+
+| What | Size | Notes |
+|---|---|---|
+| Android SDK `~/Library/Android/sdk` | ~9.7 GB | Needed for local builds; releases build on GitHub Actions without it |
+| AVD `jftv` `~/.android/avd` | ~3.5 GB | Emulator, only for local testing |
+| Docker image `jellyfin/jellyfin` + container `jftest` | ~1.3 GB | Test server; its data is in the session scratchpad (`/private/tmp/...`), so it may vanish on reboot |
+| `~/.gradle` | ~1.7 GB | Gradle caches, re-downloaded when needed |
+| `app/build` | ~0.7 GB | `./gradlew clean` |
+| JDK 21 `~/.jdks` | ~0.3 GB | Needed for local builds |
+
+Never delete `../keystore/` (signing key).
 
 ## Release
 

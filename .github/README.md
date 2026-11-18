@@ -86,6 +86,17 @@ git push origin v0.20.0-offline.4
 GitHub compila, firma y publica la release (con las notas del CHANGELOG). Detalles en
 [CLAUDE.md](../CLAUDE.md).
 
+## Mantenimiento
+
+- **Revisar de vez en cuando si hay una versión estable nueva de la app oficial**
+  ([releases](https://github.com/jellyfin/jellyfin-androidtv/releases), sin contar beta/rc).
+  Si la hay, se trae a la rama `offline` manteniendo nuestras funciones y se publica como
+  `v<nueva>-offline.1` (por ejemplo `v0.21.0-offline.1`). Pasos en [CLAUDE.md](../CLAUDE.md).
+- **Espacio en el Mac**: las herramientas para compilar y probar en local (Android SDK, emulador,
+  servidor Jellyfin de prueba en Docker, cachés de Gradle) ocupan unos 17 GB. Se pueden borrar si
+  hace falta espacio; las releases se compilan en GitHub y no las necesitan. Nunca borres la
+  carpeta `keystore/`.
+
 ## Licencia
 
 GPL-2.0, igual que el proyecto original de Jellyfin.
