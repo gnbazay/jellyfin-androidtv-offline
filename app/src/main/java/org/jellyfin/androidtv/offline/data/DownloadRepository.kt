@@ -140,13 +140,20 @@ class DownloadRepository(
 	}
 
 	private fun ensureSpace(required: Long) {
-		val available = storage.usableBytes()
+		// Space still needed by downloads that are already queued
+		val pending = _items.value
+			.filter { !it.isCompleted && it.status != DownloadStatus.FAILED }
+			.sumOf { (it.totalBytes - it.downloadedBytes).coerceAtLeast(0) }
+		val available = (storage.usableBytes() - pending).coerceAtLeast(0)
 		if (required > available) throw InsufficientSpaceException(required, available)
 	}
 
 	private fun enqueueSingle(item: BaseItemDto, quality: DownloadQuality, checkSpace: Boolean) {
 		val id = item.id.toString()
-		if (get(id)?.isCompleted == true) return
+		val existing = get(id)
+		if (existing?.isCompleted == true) return
+		// Start over when an unfinished download is queued again (quality may have changed)
+		if (existing != null) storage.delete(id)
 
 		val source = item.mediaSources?.firstOrNull()
 		if (checkSpace) ensureSpace(estimateBytes(item, quality))

@@ -247,6 +247,8 @@ class DownloadWorker(
 						val now = System.currentTimeMillis()
 						if (now - lastProgress >= PROGRESS_INTERVAL_MS) {
 							lastProgress = now
+							// Deleted or queued again while downloading
+							if (repository.get(item.id)?.addedAt != item.addedAt) return ItemResult.Removed
 							val persist = now - lastPersist >= PERSIST_INTERVAL_MS
 							if (persist) lastPersist = now
 							val updated = repository.update(item.id, persist) {
@@ -262,7 +264,7 @@ class DownloadWorker(
 			if (contentLength > 0 && downloaded < total) throw IOException("Incomplete download ($downloaded/$total)")
 		}
 
-		if (repository.get(item.id) == null) return ItemResult.Removed
+		if (repository.get(item.id)?.addedAt != item.addedAt) return ItemResult.Removed
 		if (!part.renameTo(target)) return ItemResult.Fatal("Unable to move downloaded file")
 		return complete(item, target)
 	}
