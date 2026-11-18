@@ -193,7 +193,7 @@ class DownloadWorker(
 			item.mediaSourceId?.let { add("mediaSourceId=$it") }
 			add("deviceId=$deviceId")
 			add("playSessionId=${UUID.randomUUID().toString().replace("-", "")}")
-			add("container=mkv")
+			add("container=ts")
 			add("videoCodec=h264")
 			add("audioCodec=aac")
 			add("audioChannels=2")
@@ -205,7 +205,7 @@ class DownloadWorker(
 			add("subtitleMethod=Drop")
 			add("context=Static")
 		}
-		return "${item.serverUrl}/Videos/${item.id}/stream.mkv?${params.joinToString("&")}"
+		return "${item.serverUrl}/Videos/${item.id}/stream.ts?${params.joinToString("&")}"
 	}
 
 	private suspend fun downloadMedia(item: OfflineItem, authorization: String): ItemResult {

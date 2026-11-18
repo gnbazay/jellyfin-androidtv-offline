@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.OptIn
@@ -21,6 +22,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.ui.DefaultTimeBar
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -75,6 +77,7 @@ class OfflinePlayerActivity : FragmentActivity() {
 			keepScreenOn = true
 		}
 		setContentView(playerView)
+		playerView.findViewById<DefaultTimeBar>(androidx.media3.ui.R.id.exo_progress)?.setKeyTimeIncrement(10_000)
 
 		val itemId = intent.getStringExtra(EXTRA_ITEM_ID)
 		val item = itemId?.let { repository.get(it) } ?: run {
@@ -217,11 +220,17 @@ class OfflinePlayerActivity : FragmentActivity() {
 		if (event.keyCode != KeyEvent.KEYCODE_BACK && !playerView.isControllerFullyVisible) {
 			// Quick seek without opening the controls
 			if (event.action == KeyEvent.ACTION_DOWN) when (event.keyCode) {
-				KeyEvent.KEYCODE_DPAD_LEFT -> { player?.seekBack(); playerView.showController(); return true }
-				KeyEvent.KEYCODE_DPAD_RIGHT -> { player?.seekForward(); playerView.showController(); return true }
+				KeyEvent.KEYCODE_DPAD_LEFT -> { player?.seekBack(); showSeekBar(); return true }
+				KeyEvent.KEYCODE_DPAD_RIGHT -> { player?.seekForward(); showSeekBar(); return true }
 			}
 		}
 		return playerView.dispatchKeyEvent(event) || super.dispatchKeyEvent(event)
+	}
+
+	/** Show the controls with the time bar focused so left/right keep seeking. */
+	private fun showSeekBar() {
+		playerView.showController()
+		playerView.findViewById<View>(androidx.media3.ui.R.id.exo_progress)?.requestFocus()
 	}
 
 	override fun onPause() {

@@ -182,7 +182,8 @@ class DownloadRepository(
 			else -> OfflineItemType.VIDEO
 		}
 
-		val container = if (quality.isTranscoded) "mkv"
+		// MPEG-TS keeps duration and seeking working for progressive transcodes (MKV/MP4 would not)
+		val container = if (quality.isTranscoded) "ts"
 		else source?.container?.substringBefore(',')?.ifBlank { null } ?: "mkv"
 
 		val offlineItem = OfflineItem(
