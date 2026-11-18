@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline_downloads">Downloads</string>
+    <string name="offline_download">Download</string>
+    <string name="offline_download_all">Download episodes</string>
+    <string name="offline_download_all_episodes">All episodes</string>
+    <string name="offline_download_unplayed">Unwatched episodes</string>
+    <string name="offline_downloaded">Downloaded</string>
+    <string name="offline_downloading">Downloading</string>
+    <string name="offline_open_downloads">Open downloads</string>
+    <string name="offline_play_download">Play download</string>
+    <string name="offline_delete_download">Delete download</string>
+    <string name="offline_cancel_download">Cancel download</string>
+    <string name="offline_delete_confirm">Delete this download from the device?</string>
+    <string name="offline_retry">Retry</string>
+    <string name="offline_in_progress">Downloading</string>
+    <string name="offline_empty">Nothing downloaded yet. Open a movie or episode and press Download to watch it without a connection.</string>
+    <string name="offline_storage_summary">%1$s used · %2$s free</string>
+    <string name="offline_connect_server">Connect to server</string>
+    <string name="offline_check_updates">Check for updates</string>
+    <string name="offline_nothing_to_download">Everything is already downloaded</string>
+    <plurals name="offline_queued">
+        <item quantity="one">%d item added to the downloads</item>
+        <item quantity="other">%d items added to the downloads</item>
+    </plurals>
+
+    <string name="offline_status_queued">Waiting…</string>
+    <string name="offline_status_downloading">Downloading %1$d%%</string>
+    <string name="offline_status_failed">Download failed</string>
+
+    <string name="offline_quality_original">Original</string>
+    <string name="offline_quality_1080">1080p · 8 Mbps</string>
+    <string name="offline_quality_720">720p · 4 Mbps</string>
+    <string name="offline_quality_480">480p · 1.5 Mbps</string>
+
+    <string name="offline_error_forbidden">Your user is not allowed to download. Enable \"Allow media downloading\" for this user in the Jellyfin dashboard.</string>
+    <string name="offline_error_not_found">The file was not found on the server</string>
+    <string name="offline_error_no_session">Sign in to the server to continue this download</string>
+    <string name="offline_error_space">Not enough space: %1$s needed, %2$s available</string>
+    <string name="offline_error_generic">Unable to download: %1$s</string>
+    <string name="offline_error_missing_file">The downloaded file could not be found</string>
+    <string name="offline_error_playback">Playback error: %1$s</string>
+
+    <string name="offline_update_available">Update %1$s available</string>
+    <string name="offline_update_message">A new version of Jellyfin Offline is available.</string>
+    <string name="offline_update_install">Update</string>
+    <string name="offline_later">Later</string>
+    <string name="offline_update_downloading">Downloading update</string>
+    <string name="offline_update_none">You have the latest version (%1$s)</string>
+    <string name="offline_update_check_failed">Unable to check for updates</string>
+    <string name="offline_update_permission">Allow this app to install apps, then press Update again</string>
+</resources>

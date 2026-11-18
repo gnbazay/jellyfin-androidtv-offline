@@ -72,7 +72,7 @@ class LeanbackChannelWorker(
 	workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams), KoinComponent {
 	companion object {
-		private const val PERIODIC_UPDATE_REQUEST_NAME = "LeanbackChannelPeriodicUpdateRequest"
+		const val PERIODIC_UPDATE_REQUEST_NAME = "LeanbackChannelPeriodicUpdateRequest"
 		private const val CHANNEL_STORE_NAME = "leanback_channels"
 
 		/**

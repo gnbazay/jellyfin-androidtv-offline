@@ -17,6 +17,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkManager
 import androidx.work.await
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.auth.repository.SessionRepository
 import org.jellyfin.androidtv.auth.repository.SessionRepositoryState
@@ -33,6 +35,10 @@ import org.jellyfin.androidtv.auth.repository.UserRepository
 import org.jellyfin.androidtv.data.eventhandling.SocketHandler
 import org.jellyfin.androidtv.databinding.ActivityStartupBinding
 import org.jellyfin.androidtv.integration.LeanbackChannelWorker
+import org.jellyfin.androidtv.offline.ui.OFFLINE_SKIP_EXTRA
+import org.jellyfin.androidtv.offline.ui.OfflineActivity
+import org.jellyfin.androidtv.offline.ui.hasOfflineDownloads
+import org.jellyfin.androidtv.offline.ui.shouldOpenOfflineMode
 import org.jellyfin.androidtv.ui.background.AppBackground
 import org.jellyfin.androidtv.ui.browsing.MainActivity
 import org.jellyfin.androidtv.ui.itemhandling.ItemLauncher
@@ -58,6 +64,7 @@ class StartupActivity : FragmentActivity() {
 		const val EXTRA_ITEM_ID = "ItemId"
 		const val EXTRA_ITEM_IS_USER_VIEW = "ItemIsUserView"
 		const val EXTRA_HIDE_SPLASH = "HideSplash"
+		private val OFFLINE_SERVER_TIMEOUT = 12.seconds
 	}
 
 	private val startupViewModel: StartupViewModel by viewModel()
@@ -98,6 +105,13 @@ class StartupActivity : FragmentActivity() {
 
 		if (!intent.getBooleanExtra(EXTRA_HIDE_SPLASH, false)) showSplash()
 
+		// Offline fork: without network go straight to the downloads
+		if (!intent.getBooleanExtra(OFFLINE_SKIP_EXTRA, false) && shouldOpenOfflineMode(this)) {
+			startActivity(OfflineActivity.intent(this, offlineMode = true))
+			finish()
+			return
+		}
+
 		// Ensure basic permissions
 		networkPermissionsRequester.launch(arrayOf(Manifest.permission.INTERNET, Manifest.permission.ACCESS_NETWORK_STATE))
 	}
@@ -119,7 +133,18 @@ class StartupActivity : FragmentActivity() {
 
 				showSplash()
 
-				val currentUser = userRepository.currentUser.first { it != null }
+				// Offline fork: offer the downloads when the server doesn't answer in time
+				val currentUser = withTimeoutOrNull(OFFLINE_SERVER_TIMEOUT) {
+					userRepository.currentUser.first { it != null }
+				} ?: run {
+					if (hasOfflineDownloads()) {
+						Timber.w("Server did not respond, opening downloads")
+						startActivity(OfflineActivity.intent(this, offlineMode = true))
+						finish()
+						return@onEach
+					}
+					userRepository.currentUser.first { it != null }
+				}
 				Timber.i("CurrentUser changed to ${currentUser?.id} while waiting for startup.")
 
 				lifecycleScope.launch {
@@ -147,8 +172,8 @@ class StartupActivity : FragmentActivity() {
 		// Update background worker
 		with(ProcessLifecycleOwner.get().lifecycleScope) {
 			launch {
-				// Cancel all current workers
-				workManager.cancelAllWork().await()
+				// Cancel all current workers (offline fork: except the download queue)
+				workManager.cancelUniqueWork(LeanbackChannelWorker.PERIODIC_UPDATE_REQUEST_NAME).await()
 
 				// Recreate periodic workers
 				LeanbackChannelWorker.enqueue(workManager)

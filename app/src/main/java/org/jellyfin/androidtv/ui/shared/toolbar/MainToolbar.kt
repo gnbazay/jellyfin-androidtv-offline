@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.auth.repository.SessionRepository
 import org.jellyfin.androidtv.auth.repository.UserRepository
+import org.jellyfin.androidtv.offline.ui.OfflineActivity
 import org.jellyfin.androidtv.ui.NowPlayingComposable
 import org.jellyfin.androidtv.ui.base.Icon
 import org.jellyfin.androidtv.ui.base.JellyfinTheme
@@ -156,6 +157,16 @@ private fun MainToolbar(
 		},
 		end = {
 			ToolbarButtons {
+				// Offline fork: downloads
+				IconButton(
+					onClick = { activity?.let { it.startActivity(OfflineActivity.intent(it)) } },
+				) {
+					Icon(
+						imageVector = ImageVector.vectorResource(R.drawable.ic_download),
+						contentDescription = stringResource(R.string.offline_downloads),
+					)
+				}
+
 				IconButton(
 					onClick = { settingsViewModel.show() },
 				) {

@@ -9,10 +9,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import org.jellyfin.androidtv.R
+import org.jellyfin.androidtv.offline.ui.OfflineActivity
 import org.jellyfin.androidtv.ui.base.Icon
 import org.jellyfin.androidtv.ui.base.button.IconButton
 import org.jellyfin.androidtv.ui.navigation.ProvideRouter
@@ -30,6 +32,15 @@ fun StartupToolbar(
 	Toolbar(
 		end = {
 			ToolbarButtons {
+				// Offline fork: downloads are available without signing in
+				val context = LocalContext.current
+				IconButton(onClick = { context.startActivity(OfflineActivity.intent(context, offlineMode = true)) }) {
+					Icon(
+						imageVector = ImageVector.vectorResource(R.drawable.ic_download),
+						contentDescription = stringResource(R.string.offline_downloads),
+					)
+				}
+
 				IconButton(onClick = openHelp) {
 					Icon(
 						imageVector = ImageVector.vectorResource(R.drawable.ic_help),

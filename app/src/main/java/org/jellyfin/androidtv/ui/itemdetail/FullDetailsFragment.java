@@ -52,6 +52,7 @@ import org.jellyfin.androidtv.preference.constant.ClockBehavior;
 import org.jellyfin.androidtv.ui.InteractionTrackerViewModel;
 import org.jellyfin.androidtv.ui.RecordPopup;
 import org.jellyfin.androidtv.ui.RecordingIndicatorView;
+import org.jellyfin.androidtv.offline.ui.OfflineDetailsButton;
 import org.jellyfin.androidtv.ui.TextUnderButton;
 import org.jellyfin.androidtv.ui.browsing.BrowsingUtils;
 import org.jellyfin.androidtv.ui.itemhandling.BaseRowItem;
@@ -976,6 +977,10 @@ public class FullDetailsFragment extends Fragment implements RecordingIndicatorV
             favButton.setActivated(userData.isFavorite());
             mDetailsOverviewRow.addAction(favButton);
         }
+
+        // Offline fork: download button
+        TextUnderButton offlineDownloadButton = OfflineDetailsButton.createOfflineDownloadButton(this, mBaseItem, buttonSize);
+        if (offlineDownloadButton != null) mDetailsOverviewRow.addAction(offlineDownloadButton);
 
         if (mBaseItem.getType() == BaseItemKind.EPISODE && mBaseItem.getSeriesId() != null) {
             //add the prev button first so it will be there in proper position - we'll show it later if needed

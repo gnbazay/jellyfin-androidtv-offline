@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline_downloads">Descargas</string>
+    <string name="offline_download">Descargar</string>
+    <string name="offline_download_all">Descargar episodios</string>
+    <string name="offline_download_all_episodes">Todos los episodios</string>
+    <string name="offline_download_unplayed">Episodios no vistos</string>
+    <string name="offline_downloaded">Descargado</string>
+    <string name="offline_downloading">Descargando</string>
+    <string name="offline_open_downloads">Abrir descargas</string>
+    <string name="offline_play_download">Reproducir descarga</string>
+    <string name="offline_delete_download">Eliminar descarga</string>
+    <string name="offline_cancel_download">Cancelar descarga</string>
+    <string name="offline_delete_confirm">¿Eliminar esta descarga del dispositivo?</string>
+    <string name="offline_retry">Reintentar</string>
+    <string name="offline_in_progress">Descargando</string>
+    <string name="offline_empty">Todavía no has descargado nada. Abre una película o un episodio y pulsa Descargar para verlo sin conexión.</string>
+    <string name="offline_storage_summary">%1$s usados · %2$s libres</string>
+    <string name="offline_connect_server">Conectar al servidor</string>
+    <string name="offline_check_updates">Buscar actualizaciones</string>
+    <string name="offline_nothing_to_download">Ya está todo descargado</string>
+    <plurals name="offline_queued">
+        <item quantity="one">%d elemento añadido a las descargas</item>
+        <item quantity="many">%d elementos añadidos a las descargas</item>
+        <item quantity="other">%d elementos añadidos a las descargas</item>
+    </plurals>
+
+    <string name="offline_status_queued">En espera…</string>
+    <string name="offline_status_downloading">Descargando %1$d%%</string>
+    <string name="offline_status_failed">Error en la descarga</string>
+
+    <string name="offline_quality_original">Original</string>
+    <string name="offline_quality_1080">1080p · 8 Mbps</string>
+    <string name="offline_quality_720">720p · 4 Mbps</string>
+    <string name="offline_quality_480">480p · 1,5 Mbps</string>
+
+    <string name="offline_error_forbidden">Tu usuario no tiene permiso para descargar. Activa \"Permitir la descarga de contenido\" para este usuario en el panel de Jellyfin.</string>
+    <string name="offline_error_not_found">No se ha encontrado el archivo en el servidor</string>
+    <string name="offline_error_no_session">Inicia sesión en el servidor para continuar esta descarga</string>
+    <string name="offline_error_space">No hay espacio suficiente: se necesitan %1$s y hay %2$s disponibles</string>
+    <string name="offline_error_generic">No se ha podido descargar: %1$s</string>
+    <string name="offline_error_missing_file">No se encuentra el archivo descargado</string>
+    <string name="offline_error_playback">Error de reproducción: %1$s</string>
+
+    <string name="offline_update_available">Actualización %1$s disponible</string>
+    <string name="offline_update_message">Hay una nueva versión de Jellyfin Offline.</string>
+    <string name="offline_update_install">Actualizar</string>
+    <string name="offline_later">Más tarde</string>
+    <string name="offline_update_downloading">Descargando actualización</string>
+    <string name="offline_update_none">Ya tienes la última versión (%1$s)</string>
+    <string name="offline_update_check_failed">No se ha podido comprobar si hay actualizaciones</string>
+    <string name="offline_update_permission">Permite que esta app instale aplicaciones y vuelve a pulsar Actualizar</string>
+</resources>
