@@ -53,3 +53,22 @@ class OfflineItemTests : FunSpec({
 		DownloadRepository.subtitleExtension("PGSSUB") shouldBe null
 	}
 })
+
+class EpisodeRangeTests : FunSpec({
+	fun episode(n: Int) = org.jellyfin.sdk.model.api.BaseItemDto(
+		id = java.util.UUID(0, n.toLong()),
+		type = org.jellyfin.sdk.model.api.BaseItemKind.EPISODE,
+		indexNumber = n,
+	)
+	val season = (1..8).map(::episode)
+
+	test("download from an episode until the end of the season") {
+		DownloadRepository.episodesFrom(season, season[4].id).map { it.indexNumber } shouldBe listOf(5, 6, 7, 8)
+		DownloadRepository.episodesFrom(season, season[7].id).map { it.indexNumber } shouldBe listOf(8)
+	}
+
+	test("without a start episode or with an unknown one the whole season is used") {
+		DownloadRepository.episodesFrom(season, null) shouldBe season
+		DownloadRepository.episodesFrom(season, java.util.UUID.randomUUID()) shouldBe season
+	}
+})

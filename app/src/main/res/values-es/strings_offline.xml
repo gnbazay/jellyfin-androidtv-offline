@@ -68,4 +68,6 @@
     <string name="offline_storage_removable">Tarjeta SD / USB</string>
     <string name="offline_storage_missing">El almacenamiento elegido no está disponible</string>
     <string name="offline_error_storage_unavailable">El almacenamiento elegido (tarjeta SD) no está disponible. Insértala o cambia la ubicación en Descargas.</string>
+    <string name="offline_download_until_season_end">Descargar desde aquí hasta el final de la temporada</string>
+    <string name="offline_download_episode">Descargar episodio</string>
 </resources>

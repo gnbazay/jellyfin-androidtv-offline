@@ -68,6 +68,13 @@ class DownloadRepository(
 		)
 
 		fun subtitleExtension(codec: String?) = subtitleFormats[codec?.lowercase()]
+
+		/** Episodes starting at [fromEpisodeId] (in season order), or all of them without one. */
+		fun episodesFrom(episodes: List<BaseItemDto>, fromEpisodeId: UUID?): List<BaseItemDto> {
+			if (fromEpisodeId == null) return episodes
+			val index = episodes.indexOfFirst { it.id == fromEpisodeId }
+			return if (index == -1) episodes else episodes.drop(index)
+		}
 	}
 
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -122,17 +129,21 @@ class DownloadRepository(
 
 	/**
 	 * Episodes of a season that can still be downloaded (not downloaded or queued yet).
+	 * @param fromEpisodeId only include this episode and the ones after it in the season
 	 */
 	suspend fun getDownloadableEpisodes(
 		seriesId: UUID,
 		seasonId: UUID,
 		onlyUnplayed: Boolean,
+		fromEpisodeId: UUID? = null,
 	): List<BaseItemDto> = withContext(Dispatchers.IO) {
-		api.tvShowsApi.getEpisodes(
+		val episodes = api.tvShowsApi.getEpisodes(
 			seriesId = seriesId,
 			seasonId = seasonId,
 			fields = ItemRepository.itemFields,
 		).content.items
+
+		episodesFrom(episodes, fromEpisodeId)
 			.filter { it.locationType != LocationType.VIRTUAL }
 			.filter { !onlyUnplayed || it.userData?.played != true }
 			.filter { get(it.id)?.status.let { status -> status == null || status == DownloadStatus.FAILED } }

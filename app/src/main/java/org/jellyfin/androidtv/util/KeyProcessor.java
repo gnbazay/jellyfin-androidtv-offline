@@ -12,6 +12,7 @@ import org.jellyfin.androidtv.R;
 import org.jellyfin.androidtv.constant.CustomMessage;
 import org.jellyfin.androidtv.data.repository.CustomMessageRepository;
 import org.jellyfin.androidtv.data.repository.ItemMutationRepository;
+import org.jellyfin.androidtv.offline.ui.OfflineItemMenu;
 import org.jellyfin.androidtv.ui.itemhandling.AudioQueueBaseRowItem;
 import org.jellyfin.androidtv.ui.itemhandling.BaseRowItem;
 import org.jellyfin.androidtv.ui.itemhandling.BaseRowType;
@@ -248,6 +249,11 @@ public class KeyProcessor {
                     menu.getMenu().add(0, MENU_MARK_FAVORITE, order++, activity.getString(R.string.lbl_add_favorite));
                 }
             }
+        }
+
+        // Offline fork: download entries
+        if (rowItem.getBaseRowType() == BaseRowType.BaseItem) {
+            OfflineItemMenu.addOfflineMenuItems(menu.getMenu(), item, activity);
         }
 
         menu.setOnMenuItemClickListener(new KeyProcessorItemMenuClickListener(activity, rowItem));

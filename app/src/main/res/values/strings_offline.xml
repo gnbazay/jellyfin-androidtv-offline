@@ -66,4 +66,6 @@
     <string name="offline_storage_removable">SD card / USB</string>
     <string name="offline_storage_missing">The selected storage is not available</string>
     <string name="offline_error_storage_unavailable">The selected storage (SD card) is not available. Insert it or change the location in Downloads.</string>
+    <string name="offline_download_until_season_end">Download from here to the end of the season</string>
+    <string name="offline_download_episode">Download episode</string>
 </resources>

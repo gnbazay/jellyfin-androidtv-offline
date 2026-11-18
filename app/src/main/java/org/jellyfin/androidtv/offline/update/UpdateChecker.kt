@@ -33,6 +33,28 @@ data class AvailableUpdate(
 	val notes: String?,
 )
 
+/** Very small Markdown cleanup so release notes read well in a plain dialog. */
+internal fun markdownToPlainText(markdown: String): String = markdown
+	.lines()
+	// Join wrapped continuation lines ("  text") with the line before
+	.fold(mutableListOf<String>()) { lines, line ->
+		if (line.startsWith("  ") && line.isNotBlank() && !line.trimStart().startsWith("-") && lines.isNotEmpty()) {
+			lines[lines.lastIndex] = lines.last() + " " + line.trim()
+		} else {
+			lines += line
+		}
+		lines
+	}
+	.joinToString("\n") { line ->
+		line
+			.replace(Regex("^#{1,6}\\s*"), "")
+			.replace(Regex("^(\\s*)[-*]\\s+"), "$1• ")
+			.replace("**", "")
+			.replace(Regex("(?<!\\w)[*_]([^*_]+)[*_](?!\\w)"), "$1")
+	}
+	.replace(Regex("\n{3,}"), "\n\n")
+	.trim()
+
 /**
  * Checks the GitHub releases of this fork for a newer APK, downloads and installs it.
  */
@@ -83,7 +105,7 @@ class UpdateChecker(private val context: Context) {
 			tag = tag,
 			versionCode = versionCode,
 			apkUrl = apkUrl,
-			notes = release["body"]?.jsonPrimitive?.contentOrNull,
+			notes = release["body"]?.jsonPrimitive?.contentOrNull?.let(::markdownToPlainText),
 		)
 	}
 
