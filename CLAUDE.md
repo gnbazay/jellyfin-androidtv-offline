@@ -60,9 +60,33 @@ User-facing docs: [.github/README.md](.github/README.md) (shown on GitHub) and
 ## Branches and remotes
 
 - `origin` = `gnbazay/jellyfin-androidtv-offline`, `upstream` = `jellyfin/jellyfin-androidtv`.
-- Work is based on **upstream stable tags**, never on `upstream/master` (dev code).
-- Update to a new upstream release: `git fetch upstream --tags && git merge v0.21.0`, fix hooks,
-  build, test, release `v0.21.0-offline.1`.
+- **All work happens on `offline`** (default branch). `master` is an untouched copy of upstream's
+  development branch and is not used: never merge `offline` into it or vice versa (decided with
+  the owner).
+- Work is based on **upstream stable tags** (`vX.Y.Z`, not `-beta`/`-rc`), never on
+  `upstream/master` (unreleased dev code).
+
+### Updating to a new upstream stable release
+
+Merge the upstream tag into `offline` (not a rebase: rebasing rewrites published history and
+would need force pushes; a merge gives the same result — upstream fixes + our offline code):
+
+```bash
+git checkout offline
+git fetch upstream --tags
+git tag -l 'v*' --sort=-v:refname | grep -vE 'offline|beta|rc' | head -3   # newest stable
+git merge --no-ff v0.21.0 -m "Merge upstream v0.21.0"
+```
+
+1. Resolve conflicts — they can only appear in the hook files listed above (search for
+   `Offline fork`) and `gradle/libs.versions.toml`; keep upstream's change and re-apply our hook.
+2. Check API changes used by `offline/` (Jellyfin SDK, Media3, Compose, `TextUnderButton`,
+   `KeyProcessor.createItemMenu`, `FullDetailsFragment.addButtons`, startup flow).
+3. Build + unit tests, smoke test on the `jftv` emulator (download, offline playback, SD picker,
+   season and range downloads, updater).
+4. Add `## [v0.21.0-offline.1]` to `CHANGELOG.md` ("Basada en Jellyfin Android TV 0.21.0" + the
+   upstream highlights), commit, push `offline`, tag `v0.21.0-offline.1` and push the tag.
+   The numbering restarts at `.1`; `versionCode` keeps growing (0.21.0 > 0.20.0).
 
 ## Build and test locally
 
