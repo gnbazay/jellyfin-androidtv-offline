@@ -209,7 +209,8 @@ class DownloadWorker(
 	}
 
 	private suspend fun downloadMedia(item: OfflineItem, authorization: String): ItemResult {
-		val target = storage.mediaFile(item) ?: return ItemResult.Fatal("No media file name")
+		// Null when the volume of this download (e.g. the SD card) was removed, retry later
+		val target = storage.mediaFile(item) ?: throw IOException("Download location not available")
 		if (target.exists()) return complete(item, target)
 
 		val part = storage.partFile(item.id)

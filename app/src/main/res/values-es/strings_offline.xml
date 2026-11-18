@@ -2,7 +2,6 @@
 <resources>
     <string name="offline_downloads">Descargas</string>
     <string name="offline_download">Descargar</string>
-    <string name="offline_download_all">Descargar episodios</string>
     <string name="offline_download_all_episodes">Todos los episodios</string>
     <string name="offline_download_unplayed">Episodios no vistos</string>
     <string name="offline_downloaded">Descargado</string>
@@ -50,4 +49,23 @@
     <string name="offline_update_none">Ya tienes la última versión (%1$s)</string>
     <string name="offline_update_check_failed">No se ha podido comprobar si hay actualizaciones</string>
     <string name="offline_update_permission">Permite que esta app instale aplicaciones y vuelve a pulsar Actualizar</string>
+    <string name="offline_download_season">Descargar temporada</string>
+    <string name="offline_season_number">Temporada %1$d</string>
+    <string name="offline_season_downloaded">Descargada ✓</string>
+    <string name="offline_season_partial">%1$d/%2$d descargados</string>
+    <plurals name="offline_episode_count">
+        <item quantity="one">%d episodio</item>
+        <item quantity="many">%d episodios</item>
+        <item quantity="other">%d episodios</item>
+    </plurals>
+
+    <string name="offline_storage_title">Guardar descargas en</string>
+    <string name="offline_storage_button">Guardar en: %1$s · %2$s libres</string>
+    <string name="offline_storage_button_unavailable">Guardar en: no disponible</string>
+    <string name="offline_storage_auto">Automático (tarjeta SD si hay una)</string>
+    <string name="offline_storage_option">%1$s — %2$s libres de %3$s</string>
+    <string name="offline_storage_internal">Almacenamiento interno</string>
+    <string name="offline_storage_removable">Tarjeta SD / USB</string>
+    <string name="offline_storage_missing">El almacenamiento elegido no está disponible</string>
+    <string name="offline_error_storage_unavailable">El almacenamiento elegido (tarjeta SD) no está disponible. Insértala o cambia la ubicación en Descargas.</string>
 </resources>

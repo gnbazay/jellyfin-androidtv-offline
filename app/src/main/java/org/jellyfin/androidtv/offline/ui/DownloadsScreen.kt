@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import kotlinx.coroutines.withContext
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.offline.data.DownloadRepository
 import org.jellyfin.androidtv.offline.data.OfflineStorage
+import org.jellyfin.androidtv.offline.data.StorageOption
 import org.jellyfin.androidtv.offline.model.DownloadStatus
 import org.jellyfin.androidtv.offline.model.OfflineItem
 import org.jellyfin.androidtv.offline.model.OfflineItemType
@@ -66,14 +68,19 @@ fun DownloadsScreen(
 	onItemClick: (OfflineItem) -> Unit,
 	onConnect: () -> Unit,
 	onCheckUpdates: () -> Unit,
+	onChooseStorage: () -> Unit,
 	formatBytes: (Long) -> String,
 ) {
+	val storage = koinInject<OfflineStorage>()
 	val items by repository.items.collectAsState()
+	val location by storage.location.collectAsState()
 	var freeBytes by remember { mutableLongStateOf(0L) }
 	var usedBytes by remember { mutableLongStateOf(0L) }
+	var target by remember { mutableStateOf<StorageOption?>(null) }
 
-	LaunchedEffect(items.size, items.count { it.isCompleted }) {
+	LaunchedEffect(items.size, items.count { it.isCompleted }, location) {
 		withContext(Dispatchers.IO) {
+			target = storage.targetOption()
 			freeBytes = repository.freeBytes()
 			usedBytes = repository.usedBytes()
 		}
@@ -151,6 +158,12 @@ fun DownloadsScreen(
 					}
 					if (offlineMode) {
 						Button(onClick = onConnect) { Text(stringResource(R.string.offline_connect_server)) }
+					}
+					Button(onClick = onChooseStorage) {
+						Text(
+							target?.let { stringResource(R.string.offline_storage_button, it.label, formatBytes(it.freeBytes)) }
+								?: stringResource(R.string.offline_storage_button_unavailable)
+						)
 					}
 					Button(
 						onClick = onCheckUpdates,

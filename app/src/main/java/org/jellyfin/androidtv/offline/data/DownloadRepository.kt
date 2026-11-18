@@ -31,6 +31,7 @@ import org.jellyfin.sdk.api.client.extensions.userLibraryApi
 import org.jellyfin.sdk.api.client.util.AuthorizationHeaderBuilder
 import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
+import org.jellyfin.sdk.model.api.ItemFields
 import org.jellyfin.sdk.model.api.LocationType
 import org.jellyfin.sdk.model.api.MediaStreamType
 import timber.log.Timber
@@ -38,7 +39,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class InsufficientSpaceException(val requiredBytes: Long, val availableBytes: Long) : Exception()
-class DownloadNotAllowedException : Exception()
+class StorageUnavailableException : Exception()
 
 /**
  * Central place for everything related to offline items: enqueueing downloads, progress updates,
@@ -94,43 +95,71 @@ class DownloadRepository(
 				if (item.id == id) transform(item).also { updated = it } else item
 			}
 		}
-		if (persist) updated?.let(storage::write)
+		if (persist) updated?.let { item ->
+			runCatching { storage.write(item) }
+				.onFailure { Timber.w(it, "Unable to save offline metadata of $id") }
+		}
 		return updated
 	}
 
 	/**
-	 * Download a movie/episode/video, or every (unplayed) episode of a series or season.
-	 * @return number of items queued
+	 * Download a single movie, episode or video.
 	 */
-	suspend fun enqueue(
-		item: BaseItemDto,
-		quality: DownloadQuality,
-		onlyUnplayed: Boolean = false,
-	): Int = withContext(Dispatchers.IO) {
-		when (item.type) {
-			BaseItemKind.SERIES, BaseItemKind.SEASON -> {
-				val seriesId = if (item.type == BaseItemKind.SERIES) item.id else requireNotNull(item.seriesId)
-				val episodes = api.tvShowsApi.getEpisodes(
-					seriesId = seriesId,
-					seasonId = if (item.type == BaseItemKind.SEASON) item.id else null,
-					fields = ItemRepository.itemFields,
-				).content.items
-					.filter { it.locationType != LocationType.VIRTUAL }
-					.filter { !onlyUnplayed || it.userData?.played != true }
-					.filter { get(it.id) == null }
+	suspend fun enqueue(item: BaseItemDto, quality: DownloadQuality) = withContext(Dispatchers.IO) {
+		ensureStorage()
+		val full = api.userLibraryApi.getItem(itemId = item.id).content
+		enqueueSingle(full, quality, checkSpace = true)
+	}
 
-				val required = episodes.sumOf { estimateBytes(it, quality) }
-				ensureSpace(required)
-				episodes.forEach { enqueueSingle(it, quality, checkSpace = false) }
-				episodes.size
-			}
+	/** Seasons of a series that contain episodes. */
+	suspend fun getSeasons(seriesId: UUID): List<BaseItemDto> = withContext(Dispatchers.IO) {
+		api.tvShowsApi.getSeasons(
+			seriesId = seriesId,
+			fields = setOf(ItemFields.CHILD_COUNT),
+			isMissing = false,
+		).content.items.filter { (it.childCount ?: 1) > 0 }
+	}
 
-			else -> {
-				val full = api.userLibraryApi.getItem(itemId = item.id).content
-				enqueueSingle(full, quality, checkSpace = true)
-				1
-			}
-		}
+	/**
+	 * Episodes of a season that can still be downloaded (not downloaded or queued yet).
+	 */
+	suspend fun getDownloadableEpisodes(
+		seriesId: UUID,
+		seasonId: UUID,
+		onlyUnplayed: Boolean,
+	): List<BaseItemDto> = withContext(Dispatchers.IO) {
+		api.tvShowsApi.getEpisodes(
+			seriesId = seriesId,
+			seasonId = seasonId,
+			fields = ItemRepository.itemFields,
+		).content.items
+			.filter { it.locationType != LocationType.VIRTUAL }
+			.filter { !onlyUnplayed || it.userData?.played != true }
+			.filter { get(it.id)?.status.let { status -> status == null || status == DownloadStatus.FAILED } }
+	}
+
+	/** Estimated size of downloading all [episodes] in the given quality. */
+	fun estimateBytes(episodes: List<BaseItemDto>, quality: DownloadQuality): Long =
+		episodes.sumOf { estimateBytes(it, quality) }
+
+	/**
+	 * Download the given episodes (e.g. from [getDownloadableEpisodes]).
+	 * @return number of episodes queued
+	 */
+	suspend fun enqueueEpisodes(episodes: List<BaseItemDto>, quality: DownloadQuality): Int = withContext(Dispatchers.IO) {
+		ensureStorage()
+		ensureSpace(estimateBytes(episodes, quality))
+		episodes.forEach { enqueueSingle(it, quality, checkSpace = false) }
+		episodes.size
+	}
+
+	/** Number of downloaded (completed) episodes of a season. */
+	fun downloadedCount(seasonId: UUID): Int = _items.value.count {
+		it.seasonId == seasonId.toString() && it.isCompleted
+	}
+
+	private fun ensureStorage() {
+		if (storage.targetOption() == null) throw StorageUnavailableException()
 	}
 
 	private fun estimateBytes(item: BaseItemDto, quality: DownloadQuality): Long {
@@ -217,7 +246,7 @@ class DownloadRepository(
 			audioStreamIndex = source?.defaultAudioStreamIndex,
 		)
 
-		storage.write(offlineItem)
+		storage.write(offlineItem, create = true)
 		_items.update { list -> listOf(offlineItem) + list.filterNot { it.id == id } }
 		Timber.i("Queued offline download for $id (${item.name}) in quality $quality")
 		startQueue()

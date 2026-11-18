@@ -18,7 +18,8 @@ import timber.log.Timber
  */
 fun FragmentActivity.checkForOfflineUpdates(manual: Boolean) {
 	val checker by inject<UpdateChecker>()
-	if (!manual && !checker.shouldAutoCheck()) return
+	// Debug builds are a different app, never offer them the release automatically
+	if (!manual && (BuildConfig.DEBUG || !checker.shouldAutoCheck())) return
 
 	lifecycleScope.launch {
 		val update = runCatching { checker.check() }

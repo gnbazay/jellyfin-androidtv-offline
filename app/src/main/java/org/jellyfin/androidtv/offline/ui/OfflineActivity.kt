@@ -9,6 +9,8 @@ import androidx.activity.compose.setContent
 import androidx.fragment.app.FragmentActivity
 import org.jellyfin.androidtv.R
 import org.jellyfin.androidtv.offline.data.DownloadRepository
+import org.jellyfin.androidtv.offline.data.OfflineStorage
+import org.jellyfin.androidtv.offline.data.StorageSelector
 import org.jellyfin.androidtv.offline.model.DownloadStatus
 import org.jellyfin.androidtv.offline.model.OfflineItem
 import org.jellyfin.androidtv.offline.player.OfflinePlayerActivity
@@ -35,6 +37,7 @@ class OfflineActivity : FragmentActivity() {
 	}
 
 	private val repository by inject<DownloadRepository>()
+	private val storage by inject<OfflineStorage>()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -53,6 +56,7 @@ class OfflineActivity : FragmentActivity() {
 						finish()
 					},
 					onCheckUpdates = { checkForOfflineUpdates(manual = true) },
+					onChooseStorage = ::showStorageOptions,
 					formatBytes = { Formatter.formatShortFileSize(this, it) },
 				)
 			}
@@ -62,6 +66,27 @@ class OfflineActivity : FragmentActivity() {
 	override fun onResume() {
 		super.onResume()
 		repository.reload()
+	}
+
+	private fun showStorageOptions() {
+		val options = storage.storageOptions()
+		val format = { bytes: Long -> Formatter.formatShortFileSize(this, bytes) }
+		val values = listOf(StorageSelector.AUTO) + options.map { it.path }
+		val labels = listOf(getString(R.string.offline_storage_auto)) + options.map {
+			getString(R.string.offline_storage_option, it.label, format(it.freeBytes), format(it.totalBytes))
+		}
+		val current = values.indexOf(storage.location.value)
+
+		// AlertDialog can't show a message together with a list, so the warning goes in the title
+		val title = getString(R.string.offline_storage_title)
+		AlertDialog.Builder(this)
+			.setTitle(if (current == -1) "$title\n${getString(R.string.offline_storage_missing)}" else title)
+			.setSingleChoiceItems(labels.toTypedArray(), current) { dialog, which ->
+				storage.setLocation(values[which])
+				dialog.dismiss()
+			}
+			.setNegativeButton(R.string.lbl_cancel, null)
+			.show()
 	}
 
 	private fun play(item: OfflineItem, fromStart: Boolean) {

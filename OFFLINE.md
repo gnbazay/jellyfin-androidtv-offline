@@ -35,7 +35,15 @@ Panel de Jellyfin → Usuarios → tu usuario:
   - *Original*: el archivo tal cual (más rápido, sin carga para el servidor; se reanuda si se corta).
   - *1080p / 720p / 480p*: el servidor lo transcodifica a H.264/AAC estéreo (ocupa mucho menos,
     pero si se corta la conexión vuelve a empezar).
-- En una **serie o temporada**: botón **Descargar episodios** → todos o solo los no vistos.
+- En una **serie**: botón **Descargar temporada** → eliges la temporada (verás cuántos episodios
+  tiene y cuáles ya están descargados) → todos los episodios o solo los no vistos → calidad, con
+  el tamaño total estimado de la temporada. Desde una **temporada** el botón funciona igual, sin
+  tener que elegirla. No se puede descargar una serie entera de golpe, para no llenar el espacio.
+- **Dónde se guardan**: en Descargas, botón **Guardar en**. Por defecto es *Automático*: usa la
+  tarjeta SD (o USB) si hay una y, si no, el almacenamiento interno. También puedes elegir la SD o
+  el interno a mano. Si eliges la SD y no está puesta, la app te avisa y **no** descarga en el
+  interno. Las descargas que están en la SD desaparecen de la lista al sacarla y vuelven al
+  ponerla. La SD tiene que estar formateada como **almacenamiento portátil** (no como "interno").
 - **Descargas**: icono de descarga en la barra superior (también en la pantalla de selección de
   servidor, sin iniciar sesión).
 - **Sin conexión**: si al abrir la app no hay red, o el servidor no responde en 12 s, se abre

@@ -2,7 +2,6 @@
 <resources>
     <string name="offline_downloads">Downloads</string>
     <string name="offline_download">Download</string>
-    <string name="offline_download_all">Download episodes</string>
     <string name="offline_download_all_episodes">All episodes</string>
     <string name="offline_download_unplayed">Unwatched episodes</string>
     <string name="offline_downloaded">Downloaded</string>
@@ -49,4 +48,22 @@
     <string name="offline_update_none">You have the latest version (%1$s)</string>
     <string name="offline_update_check_failed">Unable to check for updates</string>
     <string name="offline_update_permission">Allow this app to install apps, then press Update again</string>
+    <string name="offline_download_season">Download season</string>
+    <string name="offline_season_number">Season %1$d</string>
+    <string name="offline_season_downloaded">Downloaded ✓</string>
+    <string name="offline_season_partial">%1$d/%2$d downloaded</string>
+    <plurals name="offline_episode_count">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episodes</item>
+    </plurals>
+
+    <string name="offline_storage_title">Save downloads to</string>
+    <string name="offline_storage_button">Save to: %1$s · %2$s free</string>
+    <string name="offline_storage_button_unavailable">Save to: not available</string>
+    <string name="offline_storage_auto">Automatic (SD card if available)</string>
+    <string name="offline_storage_option">%1$s — %2$s free of %3$s</string>
+    <string name="offline_storage_internal">Internal storage</string>
+    <string name="offline_storage_removable">SD card / USB</string>
+    <string name="offline_storage_missing">The selected storage is not available</string>
+    <string name="offline_error_storage_unavailable">The selected storage (SD card) is not available. Insert it or change the location in Downloads.</string>
 </resources>
